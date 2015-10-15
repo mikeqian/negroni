@@ -14,7 +14,11 @@ func main() {
 		fmt.Fprintf(w, "Welcome to the home page!")
 	})
 
+<<<<<<< HEAD
 	n.Use(mux)
 
+=======
+	n.UseHandler(mux)
+>>>>>>> 4220a4435352515e238756de90d7fae69617052a
 	n.Run(":3000")
 }

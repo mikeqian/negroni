@@ -74,9 +74,26 @@ func (n *Negroni) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 }
 
 // Use adds a Handler onto the middleware stack. Handlers are invoked in the order they are added to a Negroni.
-func (n *Negroni) Use(handler Handler) {
+func (n *Negroni) use(handler Handler) {
 	n.handlers = append(n.handlers, handler)
 	n.middleware = build(n.handlers)
+}
+
+// Use adds a Handler onto the middleware stack.
+// Handlers are invoked in the order they are added to a Negroni.
+func (n *Negroni) Use(handler interface{}) {
+	switch handler := handler.(type) {
+	case http.Handler:
+		n.use(Wrap(handler))
+	case Handler:
+		n.use(handler)
+	case func(rw http.ResponseWriter, r *http.Request, next http.HandlerFunc):
+		n.use(HandlerFunc(handler))
+	case func(rw http.ResponseWriter, r *http.Request):
+		n.use(Wrap(http.HandlerFunc(handler)))
+	default:
+		panic("unknown handler")
+	}
 }
 
 // UseFunc adds a Negroni-style handler function onto the middleware stack.
